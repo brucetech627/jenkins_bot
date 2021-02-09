@@ -10,7 +10,7 @@
 # Script by @mrjarvis698
 
 # Personal variables
-export rom_dir=/home/ubuntu/jash/ports
+export rom_dir=/home/ubuntu/bot
 export BOT_API_KEY="1676380303:AAGdS7P4sNChgg-G6TdAVRl84ppBsGAvw8o"
 export BOT_CHAT_ID2="1413501466"
 
