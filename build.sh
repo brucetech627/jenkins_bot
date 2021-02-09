@@ -10,12 +10,9 @@
 # Script by @mrjarvis698
 
 # Personal variables
-export rom_dir=/home/k/aex/aex
-export BOT_API_KEY="1336436573:AAFpaGsPLEc90A9LBObk6kSXDvjrySmQH14"
-export BOT_CHAT_ID2="571213272"
-export j=20
-export ccache_dir=${rom_dir}/junk/ccache
-export max_ccache=25G
+export rom_dir=/home/ubuntu/jash/ports
+export BOT_API_KEY="1676380303:AAGdS7P4sNChgg-G6TdAVRl84ppBsGAvw8o"
+export BOT_CHAT_ID2="1413501466"
 
 . $(pwd)/export.sh
 
@@ -30,47 +27,48 @@ sendMessage() {
 
 # Repo Init
 cd $rom_dir
-sendMessage "Repo Initializing."
-repo init --depth=1 -u ${android_manifest_url} -b ${manifest_branch} -g default,-darwin,-device,-mips
-git clone --depth=1 ${local_manifest_url} ${rom_dir}/.repo/local_manifests -b ${local_manifest_branch}
-cd ${rom_dir}/.repo/local_manifests
-git remote add tmp ${local_manifest_url}
-git fetch tmp
-git checkout -f remotes/tmp/${local_manifest_branch}
-git remote remove tmp
-cd $rom_dir
-sendMessage "Repo Initialised Successfully."
+mkdir Port
+cd Port
+sendMessage "Port ROM'S Download Initializing."
+wget ${android_manifest_url}
+cd ../
+sendMessage "Port ROM Downloaded Successfully."
 
-# Repo Sync
-sendMessage "Repo Synchronizing."
-repo sync -c --no-clone-bundle --no-tags --optimized-fetch --prune --force-sync -j 300
-sendMessage "Repo Synchronized Successfully."
+# Base Rom Download
+sendMessage "base rom downloading."
+mkdir base
+cd base
+wget https://tdrive.elytra8.workers.dev/xiaomi.eu_multi_HMNote7Pro_21.2.3_v12-10.zip
+cd ../
+sendMessage "Base downloaded Successfully."
 
-# ccache
-export CCACHE_DIR=$ccache_dir
-ccache -M $max_ccache
-export USE_CCACHE=1
-export CCACHE_EXEC=$(which ccache)
-export _JAVA_OPTIONS=-Xmx50g
+# Unzip Port
+sendMessage "Unzipping rom."
+cd Port
+unzip ROGChinaBeta21.2.3_V1.zip
+cd ../
+sendMessage "Unzipping done!."
 
-# Build Environment
-. $(rom_dir)/build/envsetup.sh
+# Copy System Files
+sendMessage "Copying System Files."
+mkdir result
+cd Port
+cp system.new.dat.br system.patch.dat system.transfer.list ../result
+cd ../
+sendMessage "Copied Sucessfully Successfully."
 
-# Lunch device
-sendMessage "Lunching ${device_name}"
-lunch "${device_prefix}_${device_name}"-"${build_variant}"
-sendMessage "Lunched ${device_name} Successfully."
+# Copy vendor, meta inf, boot.img, and cust files
+sendMessage "copying files."
+cd base
+cp -R vendor.new.dat.br vendor.patch.dat vendor.transfer.list META-INF firmware-update boot.img cust.new.dat.br cust.patch.dat  cust.transfer.list ../result
+cd ../
+cd result
+sendMessage "Copied Sucessfully."
 
-# Log
-# Date and time
-export BUILDDATE=$(date +%Y%m%d)
-export BUILDTIME=$(date +%H%M)
-export LOGFILE=log-$BUILDDATE-$BUILDTIME.txt
-
-# Build Rom
-sendMessage "Starting Build for ${device_name}."
-time ${make_rom} -j ${j} | tee ./$LOGFILE &
-
+# Zip files
+sendMessage "Zipping Files."
+zip -r port_rom META-INF firmware-update system.new.dat.br system.patch.dat system.transfer.list vendor.new.dat.br vendor.patch.dat vendor.transfer.list boot.img cust.new.dat.br cust.patch.dat  cust.transfer.list
+sendMessage "Zip Completed."
 # LAUNCH PROGRESS OBSERVER
 sleep 60
 while test ! -z "$(pidof soong_ui)"; do
@@ -82,14 +80,5 @@ while test ! -z "$(pidof soong_ui)"; do
 done
 
 
-up4 () 
-{ 
-	    curl --upload-file $1 https://transfer.sh/$(basename $1);
-	        echo
-	}
 
-trim=${tail }
-
-
-
-sendMessage "${make_rom} Finished. Check for your Build."
+sendMessage "Port Finished. Check for your Build."
